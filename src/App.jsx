@@ -3,6 +3,7 @@ import MainMenu from './components/screens/MainMenu';
 import JoinScreen from './components/screens/JoinScreen';
 import LobbyScreen from './components/screens/LobbyScreen';
 import RaceScreen from './components/screens/RaceScreen';
+import WinnerScreen from './components/screens/WinnerScreen';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -29,10 +30,7 @@ export default function App() {
       )}
 
       {screen === 'winner' && (
-        <div className="flex items-center justify-center min-h-screen text-center">
-          <h1 className="text-6xl font-black text-accent neon-glow-cyan">VICTORY!</h1>
-          <button onClick={() => navigate('menu')} className="mt-8 text-white underline">EXIT</button>
-        </div>
+        <WinnerScreen onNavigate={navigate} />
       )}
     </div>
   );
