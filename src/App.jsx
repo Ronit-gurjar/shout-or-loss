@@ -4,6 +4,7 @@ import JoinScreen from './components/screens/JoinScreen';
 import LobbyScreen from './components/screens/LobbyScreen';
 import RaceScreen from './components/screens/RaceScreen';
 import WinnerScreen from './components/screens/WinnerScreen';
+import ProfileScreen from './components/screens/ProfileScreen';
 
 export default function App() {
   const [screen, setScreen] = useState('menu');
@@ -31,6 +32,10 @@ export default function App() {
 
       {screen === 'winner' && (
         <WinnerScreen onNavigate={navigate} />
+      )}
+
+      {screen === 'profile' && (
+        <ProfileScreen onNavigate={navigate} />
       )}
     </div>
   );
