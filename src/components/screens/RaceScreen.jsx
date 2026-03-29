@@ -1,108 +1,108 @@
-import { useState, useEffect } from 'react';
-import { useAudioController } from '../../hooks/useAudioController';
-import { useWebHaptics } from "web-haptics/react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
-const INITIAL_RACERS = [
-  { id: 1, name: "YOU", color: "oklch(0.85 0.2 200)", progress: 0 },
-  { id: 2, name: "SPEED_DEMON", color: "oklch(0.7 0.3 340)", progress: 0 },
-  { id: 3, name: "NOISY_BOI", color: "oklch(0.9 0.2 90)", progress: 0 },
+// Mock data for the results
+const MOCK_RESULTS = [
+  { id: 1, name: "YOU", color: "oklch(0.85 0.2 200)", time: "0:42.12", rank: 1 },
+  { id: 2, name: "SPEED_DEMON", color: "oklch(0.7 0.3 340)", time: "0:44.05", rank: 2 },
+  { id: 3, name: "NOISY_BOI", color: "oklch(0.9 0.2 90)", time: "0:48.90", rank: 3 },
+  { id: 4, name: "SILENT_JIM", color: "oklch(0.6 0.1 200)", time: "1:02.30", rank: 4 },
+  // Adding more mock racers to test the scrolling behavior
+  { id: 5, name: "ARCADE_ACE", color: "oklch(0.8 0.1 120)", time: "1:05.15", rank: 5 },
+  { id: 6, name: "STATIC_CLING", color: "oklch(0.7 0.2 300)", time: "1:08.50", rank: 6 },
+  { id: 7, name: "VOLUME_VIPER", color: "oklch(0.95 0.3 60)", time: "1:10.20", rank: 7 },
 ];
 
-export default function RaceScreen({ onNavigate }) {
-  const [gameState, setGameState] = useState('countdown'); 
-  const [countdown, setCountdown] = useState(5);
-  const [racers, setRacers] = useState(INITIAL_RACERS);
-  const { trigger } = useWebHaptics();
-
-  const volume = useAudioController(gameState === 'racing', trigger, (v) => {
-    setRacers(prev => prev.map(r => 
-      r.id === 1 ? { ...r, progress: Math.min(r.progress + (v * 0.8), 100) } : r
-    ));
+export default function WinnerScreen({ onNavigate }) {
+  const topThree = MOCK_RESULTS.filter(r => r.rank <= 3).sort((a, b) => {
+    // Custom sort for pedestal: 2nd, 1st, 3rd
+    const order = { 2: 0, 1: 1, 3: 2 };
+    return order[a.rank] - order[b.rank];
   });
 
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      setGameState('racing');
-    }
-  }, [countdown]);
-
-  useEffect(() => {
-    const winner = racers.find(r => r.progress >= 100);
-    if (winner) {
-      setGameState('finished');
-      setTimeout(() => onNavigate('winner'), 1000);
-    }
-  }, [racers, onNavigate]);
-
   return (
-    <div className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center justify-center p-4">
+    // MAIN CONTENT CONTAINER: Uses flex and screen height
+    <div className="flex flex-col h-screen bg-background relative overflow-hidden font-sans uppercase tracking-widest">
       
-      {/* TRACK CONTAINER 
-          Mobile: Vertical (flex-row for lanes, lanes are tall)
-          Desktop: Horizontal (flex-col for lanes, lanes are wide)
-      */}
-      <div className="relative w-full h-[70vh] md:h-[60vh] flex flex-row md:flex-col justify-around border-2 border-white/5 bg-slate-950/20">
+      {/* SCROLLABLE CONTENT AREA: All results live here */}
+      <div className="flex-1 overflow-y-auto px-6 pt-10 pb-28 md:pb-10">
         
-        {racers.map((racer) => (
-          <div key={racer.id} className="relative flex-1 border-r md:border-r-0 md:border-b border-white/5 last:border-0">
-            
-            {/* THE CAR 
-                Mobile: Positioned via 'bottom'
-                Desktop: Positioned via 'left'
-            */}
-            <div 
-              className="absolute transition-all duration-100 flex flex-col items-center z-10"
-              style={{ 
-                bottom: window.innerWidth < 768 ? `${racer.progress}%` : '50%',
-                left: window.innerWidth >= 768 ? `${racer.progress}%` : '50%',
-                transform: window.innerWidth >= 768 ? 'translate(-50%, -50%)' : 'translateX(-50%)'
-              }}
-            >
-              <p className="text-[8px] font-black text-white bg-black/50 px-1 mb-1 whitespace-nowrap">
-                {racer.name}
-              </p>
-              
-              {/* Car Body: Rotates based on orientation */}
-              <div 
-                className={`border-2 shadow-lg transition-transform ${racer.id === 1 && volume > 0.5 ? 'animate-vibrate' : ''}
-                  w-6 h-10 md:w-12 md:h-6`} // Tall on mobile, wide on desktop
-                style={{ backgroundColor: racer.color, borderColor: 'white' }} 
-              />
-            </div>
-          </div>
-        ))}
+        {/* Race Results Title */}
+        <h1 className="text-4xl md:text-5xl font-black italic text-accent neon-glow-cyan text-center mb-10 animate-pulse">
+          RACE RESULTS
+        </h1>
 
-        {/* FINISH LINE 
-            Mobile: At the top
-            Desktop: At the right
-        */}
-        <div className="absolute top-0 right-0 h-1 w-full md:h-full md:w-1 bg-primary neon-glow-cyan shadow-[0_0_15px_rgba(34,211,238,0.8)] z-20" />
+        {/* 1. THE PEDESTAL */}
+        <div className="flex items-end justify-center gap-2 mb-12 h-64 w-full max-w-sm mx-auto">
+          {topThree.map((racer) => (
+            <div key={racer.id} className="flex flex-col items-center flex-1">
+              <div className="text-[9px] font-black mb-1 text-white truncate w-full text-center tracking-tighter">
+                {racer.name}
+              </div>
+              {/* The Pedestal Block with varying heights */}
+              <div 
+                className={`w-full border-t-4 border-x-2 border-white/10 flex flex-col items-center pt-3 
+                  transition-all duration-300 ease-out
+                  ${racer.rank === 1 ? 'h-44 bg-primary/20 border-primary shadow-[0_0_20px_rgba(34,211,238,0.3)]' : 
+                    racer.rank === 2 ? 'h-32 bg-slate-800 border-slate-500' : 
+                                      'h-24 bg-orange-900/10 border-orange-800' }
+                `}
+              >
+                <span className="text-3xl font-black italic text-white/50">{racer.rank}</span>
+                <div className="w-6 h-3 mt-2 border border-white" style={{ backgroundColor: racer.color }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 2. THE LEADERBOARD */}
+        <Card className="w-full max-w-sm mx-auto bg-card/40 border border-white/5 rounded-none mb-4 shadow-xl">
+          <div className="px-3 py-2 bg-slate-950 text-[9px] font-black tracking-[0.2em] flex justify-between border-b border-white/5">
+            <span>RANK / PILOT</span>
+            <span>FINISH TIME</span>
+          </div>
+          <div className="divide-y divide-white/5 max-h-[40vh] overflow-y-auto">
+            {MOCK_RESULTS.map((racer) => (
+              <div key={racer.id} className="flex items-center justify-between p-3.5 gap-2">
+                <div className="flex items-center gap-3.5">
+                  <span className="font-mono text-[11px] font-bold italic text-muted-foreground">#{racer.rank}</span>
+                  <div className="w-3.5 h-3.5 shrink-0" style={{ backgroundColor: racer.color }} />
+                  <span className={`font-black text-xs ${racer.id === 1 ? 'text-primary' : 'text-white'}`}>
+                    {racer.name}
+                  </span>
+                </div>
+                <span className="font-mono text-accent text-xs font-bold tracking-tighter whitespace-nowrap">
+                  {racer.time}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
       </div>
 
-      {/* Countdown Overlay */}
-      {gameState === 'countdown' && (
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-center">
-          <h2 className="text-3xl font-black italic text-accent animate-pulse mb-4">SHHH...</h2>
-          <div className="text-9xl font-black text-primary neon-glow-cyan">{countdown}</div>
-        </div>
-      )}
+      {/* STICKY FOOTER: Always anchors actions to the bottom on mobile */}
+      <div className="absolute bottom-0 left-0 w-full p-6 pb-8 bg-black/80 backdrop-blur-md border-t border-primary/20 
+                    md:relative md:bg-transparent md:border-none md:p-0 md:w-auto md:mx-auto md:mb-10 z-50">
+        <div className="flex flex-col md:flex-row gap-4 w-full max-w-xs md:max-w-md mx-auto">
+          
+          <Button 
+            onClick={() => onNavigate('lobby')}
+            className="flex-1 h-14 md:h-16 bg-primary text-background font-black text-lg md:text-xl italic 
+                       hover:bg-cyan-300 transition-all rounded-none 
+                       shadow-[0_0_15px_rgba(34,211,238,0.3)] active:scale-95"
+          >
+            PLAY AGAIN
+          </Button>
 
-      {/* Engine Meter */}
-      <div className="fixed bottom-0 left-0 w-full p-6 bg-black/80 backdrop-blur-md border-t border-primary/20">
-        <div className="max-w-md mx-auto space-y-2">
-          <div className="flex justify-between text-[10px] font-black">
-            <span className="text-primary">ENGINE OUTPUT</span>
-            <span className="text-accent">{Math.round(volume * 100)}%</span>
-          </div>
-          <div className="h-2 w-full bg-white/5 border border-white/10 overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-75" 
-              style={{ width: `${volume * 100}%` }} 
-            />
-          </div>
+          <Button 
+            variant="outline"
+            onClick={() => onNavigate('menu')}
+            className="h-12 md:h-14 shrink-0 md:flex-1 border-secondary text-secondary 
+                       hover:bg-secondary/10 hover:text-secondary 
+                       font-black text-sm md:text-base rounded-none active:scale-95"
+          >
+            EXIT TO MENU
+          </Button>
         </div>
       </div>
     </div>
