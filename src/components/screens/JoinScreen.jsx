@@ -120,12 +120,13 @@ export default function JoinScreen({ onNavigate, setTrackId }) {
               FIND TRACK
             </Button>
 
-            <button 
+            <Button 
               onClick={() => onNavigate('menu')}
+              variant="outline"
               className="text-muted-foreground text-[10px] font-bold uppercase hover:text-primary transition-colors tracking-widest"
             >
               &lt; Return to Base
-            </button>
+            </Button>
           </div>
         )}
       </Card>

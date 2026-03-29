@@ -10,32 +10,53 @@ export default function App() {
   const [screen, setScreen] = useState('menu');
   const [trackId, setTrackId] = useState('');
 
+  // PERSISTENT PROFILE STATE
+  const [profile, setProfile] = useState({
+    name: "VIRTUAL_SHOUTER",
+    color: "#22d3ee", // Default Cyan
+    haptics: true,
+    sounds: true,
+    photo: null
+  });
+
   const navigate = (target) => setScreen(target);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans uppercase">
       {screen === 'menu' && <MainMenu onNavigate={navigate} />}
       
+      {screen === 'profile' && (
+        <ProfileScreen 
+          onNavigate={navigate} 
+          profile={profile} 
+          setProfile={setProfile} 
+        />
+      )}
+
       {screen === 'join' && (
-        <JoinScreen onNavigate={navigate} setTrackId={setTrackId} />
+        <JoinScreen 
+          onNavigate={navigate} 
+          setTrackId={setTrackId} />
       )}
 
-      {/* 3. The Lobby Screen */}
       {screen === 'lobby' && (
-        <LobbyScreen onNavigate={navigate} trackId={trackId} />
+        <LobbyScreen 
+          onNavigate={navigate} 
+          trackId={trackId} 
+          userColor={profile.color}
+          userName={profile.name}
+        />
       )}
 
-      {/* 4. Race Screen (Placeholder) */}
       {screen === 'race' && (
-        <RaceScreen onNavigate={navigate} />
+        <RaceScreen 
+          onNavigate={navigate} 
+          settings={profile} 
+        />
       )}
 
       {screen === 'winner' && (
-        <WinnerScreen onNavigate={navigate} />
-      )}
-
-      {screen === 'profile' && (
-        <ProfileScreen onNavigate={navigate} />
+        <WinnerScreen onNavigate={navigate} userProfile={profile} />
       )}
     </div>
   );
