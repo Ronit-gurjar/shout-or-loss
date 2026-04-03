@@ -2,14 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-// Mock data for now - we will replace this with Socket.io data later
-const MOCK_PLAYERS = [
-  { id: 1, name: "YOU", color: "oklch(0.85 0.2 200)", isReady: true, isHost: true },
-  { id: 2, name: "SPEED_DEMON", color: "oklch(0.7 0.3 340)", isReady: true, isHost: false },
-  { id: 3, name: "NOISY_BOI", color: "oklch(0.9 0.2 90)", isReady: false, isHost: false },
-];
+export default function LobbyScreen({ onNavigate, trackId, profile }) {
+  // Integrate the live profile into the players list
+  const MOCK_PLAYERS = [
+    { 
+      id: 1, 
+      name: profile?.name || "YOU", 
+      color: profile?.color || "oklch(0.85 0.2 200)", 
+      photo: profile?.photo,
+      isReady: true, 
+      isHost: true 
+    },
+    { id: 2, name: "SPEED_DEMON", color: "oklch(0.7 0.3 340)", isReady: true, isHost: false },
+    { id: 3, name: "NOISY_BOI", color: "oklch(0.9 0.2 90)", isReady: false, isHost: false },
+  ];
 
-export default function LobbyScreen({ onNavigate, trackId }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-between p-6 bg-background relative overflow-hidden">
       
@@ -37,11 +44,19 @@ export default function LobbyScreen({ onNavigate, trackId }) {
               className="flex items-center justify-between p-3 bg-slate-950/50 border border-white/5"
             >
               <div className="flex items-center gap-3">
+                {/* Profile Image or Color Block */}
                 <div 
-                  className="w-8 h-8 rounded-none border-2 shadow-[0_0_10px_rgba(255,255,255,0.1)]"
-                  style={{ backgroundColor: player.color, borderColor: player.color }}
-                />
-                <span className={`font-bold text-sm ${player.id === 1 ? 'text-primary' : 'text-white'}`}>
+                  className="w-10 h-10 rounded-none border-2 shrink-0 overflow-hidden bg-slate-900"
+                  style={{ borderColor: player.color }}
+                >
+                  {player.photo ? (
+                    <img src={player.photo} className="w-full h-full object-cover" alt={player.name} />
+                  ) : (
+                    <div className="w-full h-full" style={{ backgroundColor: player.color }} />
+                  )}
+                </div>
+
+                <span className={`font-bold text-sm uppercase ${player.id === 1 ? 'text-primary' : 'text-white'}`}>
                   {player.name} {player.isHost && <span className="text-[8px] text-accent ml-1">[HOST]</span>}
                 </span>
               </div>

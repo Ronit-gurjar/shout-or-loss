@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Camera, Check, Pencil, LogOut, ArrowLeft, Save } from "lucide-react";
@@ -7,7 +7,13 @@ export default function ProfileScreen({ onNavigate, profile, setProfile }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(profile.name);
 
+  useEffect(() => {
+    setTempName(profile.name);
+  }, [profile.name]);
+
   const saveName = () => {
+    if (tempName.trim() === "") return;
+    // This updates the parent state, which triggers the useEffect in App.jsx to save to localStorage
     setProfile(prev => ({ ...prev, name: tempName }));
     setIsEditingName(false);
   };
@@ -16,8 +22,27 @@ export default function ProfileScreen({ onNavigate, profile, setProfile }) {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => setProfile(prev => ({ ...prev, photo: reader.result }));
+      reader.onloadend = () => {
+        const base64Data = reader.result;
+        setProfile(prev => ({ ...prev, photo: base64Data }));
+      };
       reader.readAsDataURL(file);
+    }
+  };
+
+  // --- LOG OUT / RESET LOGIC ---
+  const handleLogOut = () => {
+    if (window.confirm("ERASE PILOT DATA? THIS CANNOT BE UNDONE.")) {
+      localStorage.removeItem('pilot_profile');
+      // Reset state to defaults
+      setProfile({
+        name: "NEW_PILOT",
+        color: "#22d3ee",
+        photo: null,
+        haptics: true,
+        sounds: true
+      });
+      onNavigate('menu');
     }
   };
 
@@ -82,6 +107,16 @@ export default function ProfileScreen({ onNavigate, profile, setProfile }) {
           </div>
         </div>
       </div>
+
+      {/* LOG OUT BUTTON */}
+      <Button 
+        variant="outline" 
+        onClick={handleLogOut}
+        className="border-destructive/50 text-destructive hover:bg-destructive hover:text-destructive-foreground font-black px-4 h-10 rounded-none transition-all"
+      >
+        <LogOut className="w-4 h-4 mr-2" />
+        LOG OUT
+      </Button>
 
       <Button onClick={() => onNavigate('menu')} className="w-full h-16 bg-primary text-background font-black rounded-none mt-auto">
         <Save className="mr-2" /> CONFIRM & EXIT

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import MainMenu from './components/screens/MainMenu';
 import JoinScreen from './components/screens/JoinScreen';
 import LobbyScreen from './components/screens/LobbyScreen';
@@ -11,13 +11,28 @@ export default function App() {
   const [trackId, setTrackId] = useState('');
 
   // PERSISTENT PROFILE STATE
-  const [profile, setProfile] = useState({
-    name: "VIRTUAL_SHOUTER",
-    color: "#22d3ee", // Default Cyan
-    haptics: true,
-    sounds: true,
-    photo: null
+  const [profile, setProfile] = useState(() => {
+    // Load the whole object at once
+    const saved = localStorage.getItem('pilot_profile');
+    return saved ? JSON.parse(saved) : {
+      name: "NEW_PILOT",
+      color: "#22d3ee",
+      photo: null,
+      haptics: true,
+      sounds: true
+    };
   });
+
+  const handleUpdateProfile = (newData) => {
+    setProfile(newData);
+    localStorage.setItem('pilot_profile', JSON.stringify(newData));
+  };
+
+  // CRITICAL: This effect runs every time 'profile' changes
+  // It saves the name, color, and photo as one single object
+  useEffect(() => {
+    localStorage.setItem('pilot_profile', JSON.stringify(profile));
+  }, [profile]);
 
   const navigate = (target) => setScreen(target);
 
@@ -29,7 +44,8 @@ export default function App() {
         <ProfileScreen 
           onNavigate={navigate} 
           profile={profile} 
-          setProfile={setProfile} 
+          setProfile={setProfile}
+          onUpdate={handleUpdateProfile}
         />
       )}
 
