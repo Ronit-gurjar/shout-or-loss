@@ -11,7 +11,7 @@ export default function MainMenu({ onNavigate }) {
       {/* Game Title */}
       <div className="text-center mb-8 z-10">
         <h1 className="text-6xl md:text-8xl font-black italic text-primary neon-glow-cyan leading-none uppercase tracking-tighter">
-          SHOUT OR LOSS
+          SHOUT OR LOSE
         </h1>
         <p className="text-accent font-bold text-sm md:text-base mt-2 tracking-[0.3em]">
           ULTIMATE VOLUME RACING
